@@ -1,18 +1,18 @@
 #include <string>
 #include <curl/curl.h>
+#include "fetcher_config.h"
 
 class Fetcher
 {
 public:
-    Fetcher(std::string ApiKey, std::string ApiUrl);
+    Fetcher(const FetcherConfigMap Config);
 
 
 private:
-    void GetSymbols();
+    void GetCurrencySymbols();
     static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
 
-    std::string Key;
-    std::string Url;
+    FetcherConfig Config;
     std::string ReadBuffer;
 
 };

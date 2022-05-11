@@ -6,12 +6,10 @@
 #include "symbols.h"
 #include "fetcher.h"
 
-Fetcher::Fetcher(std::string ApiKey, std::string ApiUrl)
+Fetcher::Fetcher(FetcherConfigMap ConfigMap)
 {
-    Key = ApiKey;
-    Url = ApiUrl;
-
-    GetSymbols();
+    Config = FetcherConfig(ConfigMap);
+    GetCurrencySymbols();
 }
 
 std::string ApiKeyHeader(std::string Key)
@@ -24,7 +22,7 @@ std::string ApiKeyHeader(std::string Key)
     return Buf.str();
 }
 
-void Fetcher::GetSymbols()
+void Fetcher::GetCurrencySymbols()
 {
     struct data config;
     config.trace_ascii = 1; /* enable ascii tracing */
