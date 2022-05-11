@@ -1,18 +1,29 @@
 #include <string>
+#include <ostream>
 #include "fetcher_config.h"
+
+// TODO: better parsing of bad characters that CURL won't like
+
+FetcherConfig::FetcherConfig(){ }
 
 FetcherConfig::FetcherConfig(FetcherConfigMap Map)
 {
     ApiKey = Map["KEY"];
-    Url = Map["URL"];
+    ApiUrl = Map["URL"];
 }
 
-std::string& FetcherConfig::GetUrl()
+std::string& FetcherConfig::Url()
 {
-    return Url;
+    return ApiUrl;
 }
 
-std::string& FetcherConfig::GetApiKey()
+std::string& FetcherConfig::Key()
 {
     return ApiKey;
 }
+
+// std::ostream& operator<<(std::ostream& strm, const FetcherConfig& config)
+// {
+//     strm << "Url: " << config.Url() << std::endl << "Key: " << config.Key() << std:: endl;
+//     return strm;
+// }

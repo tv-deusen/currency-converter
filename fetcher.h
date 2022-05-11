@@ -5,8 +5,7 @@
 class Fetcher
 {
 public:
-    Fetcher(const FetcherConfigMap Config);
-
+    Fetcher(FetcherConfigMap ConfigMap);
 
 private:
     void GetCurrencySymbols();
@@ -14,5 +13,4 @@ private:
 
     FetcherConfig Config;
     std::string ReadBuffer;
-
 };

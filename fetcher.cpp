@@ -9,6 +9,8 @@
 Fetcher::Fetcher(FetcherConfigMap ConfigMap)
 {
     Config = FetcherConfig(ConfigMap);
+    // std::cout << Config.Url() << std::endl << Config.Key() << std::endl;
+    // Should probably move this out of constructor
     GetCurrencySymbols();
 }
 
@@ -27,12 +29,13 @@ void Fetcher::GetCurrencySymbols()
     struct data config;
     config.trace_ascii = 1; /* enable ascii tracing */
 
-    std::string SymbolsEndpoint = Url.append(Symbols);
+    auto SymbolsEndpoint = Config.Url() + Symbols;
+    std::cout << SymbolsEndpoint << std::endl;
     CURL *Curl = curl_easy_init();
     if (Curl != nullptr)
     {
-        curl_easy_setopt(Curl, CURLOPT_URL, Url.c_str());
-        curl_easy_setopt(Curl, CURLOPT_HEADER, ApiKeyHeader(Key)); // this isnt the right option, use CURLOPT_HTTPHEADER
+        curl_easy_setopt(Curl, CURLOPT_URL, SymbolsEndpoint.c_str());
+        // curl_easy_setopt(Curl, CURLOPT_HTTPHEADER, ApiKeyHeader(Config.Key()).c_str());
         curl_easy_setopt(Curl, CURLOPT_WRITEFUNCTION, Fetcher::WriteCallback);
         curl_easy_setopt(Curl, CURLOPT_WRITEDATA, &ReadBuffer);
         curl_easy_setopt(Curl, CURLOPT_VERBOSE, 1L);
