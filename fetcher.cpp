@@ -2,8 +2,6 @@
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
-#include <nlohmann/json.hpp>
-#include "debug.h"
 #include "symbols.h"
 #include "fetcher.h"
 
@@ -13,7 +11,9 @@ Fetcher::Fetcher(FetcherConfigMap ConfigMap)
 {
     Config = FetcherConfig(ConfigMap);
     // std::cout << Config.Url() << std::endl << Config.Key() << std::endl;
-    // Should probably move this out of constructor
+    // TODO: Should probably move this out of constructor?
+    //       Not sure what the best practice is for calling functions
+    //       like this in constructors.
     GetCurrencySymbols();
 }
 
@@ -27,50 +27,32 @@ std::string ApiKeyHeader(std::string Key)
     return Buf.str();
 }
 
+void Fetcher::ParseCurrencySymbols(std::string& Buffer)
+{
+    auto SymbolsJson = json::parse(Buffer).at("symbols");
+    for (auto& Element : SymbolsJson.items())
+    {
+        auto Code = Element.value()["code"].get<std::string>();
+        auto Description = Element.value()["description"].get<std::string>();
+        SymbolMap[Code] = Description;
+    }
+}
+
 void Fetcher::GetCurrencySymbols()
 {
     auto SymbolsEndpoint = Config.Url() + Symbols;
-
+    std::string ReadBuffer;
     CURL *Curl = curl_easy_init();
     if (Curl != nullptr)
     {
         // https://api.exchangerate.host
         curl_easy_setopt(Curl, CURLOPT_URL, SymbolsEndpoint.c_str());
-        
         curl_easy_setopt(Curl, CURLOPT_WRITEFUNCTION, Fetcher::WriteCallback);
         curl_easy_setopt(Curl, CURLOPT_WRITEDATA, &ReadBuffer);
-
-        // struct data config;
-        // config.trace_ascii = 1; /* enable ascii tracing */       
-        // curl_easy_setopt(Curl, CURLOPT_VERBOSE, 1L);
-        // curl_easy_setopt(Curl, CURLOPT_DEBUGDATA, &config);
-        // curl_easy_setopt(Curl, CURLOPT_DEBUGFUNCTION, my_trace);
-        
         curl_easy_perform(Curl);
         curl_easy_cleanup(Curl);
     }
-
-    json::parser_callback_t JsonParseCallback = [](int depth, json::parse_event_t event, json & parsed)
-    {
-        if (event == json::parse_event_t::key && parsed != json("symbols"))
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    };
-
-    // auto FullResponse = json::parse(ReadBuffer);
-    // std::cout << std::setw(4) << FullResponse << std::endl;
-
-    auto Response = json::parse(ReadBuffer, JsonParseCallback);
-    if (!Response.is_discarded())
-    {
-        std::cout << Response << std::endl;
-    }
-    
+    ParseCurrencySymbols(ReadBuffer);
 }
 
 size_t Fetcher::WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
