@@ -1,9 +1,8 @@
-
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
-#include "symbols.h"
-#include "fetcher.h"
+#include "Endpoints.h"
+#include "Fetcher.h"
 
 using json = nlohmann::json;
 
@@ -27,15 +26,21 @@ std::string ApiKeyHeader(std::string Key)
     return Buf.str();
 }
 
-void Fetcher::ParseCurrencySymbols(std::string& Buffer)
+bool Fetcher::ParseCurrencySymbols(std::string& Buffer)
 {
     auto SymbolsJson = json::parse(Buffer).at("symbols");
+    if (SymbolsJson.empty())
+    {
+        return false;
+    }
+
     for (auto& Element : SymbolsJson.items())
     {
         auto Code = Element.value()["code"].get<std::string>();
         auto Description = Element.value()["description"].get<std::string>();
         SymbolMap[Code] = Description;
     }
+    return true;
 }
 
 void Fetcher::GetCurrencySymbols()

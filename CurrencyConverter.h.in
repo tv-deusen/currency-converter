@@ -1,0 +1,2 @@
+#define CurrencyConverter_VERSION_MAJOR @CurrencyConverter_VERSION_MAJOR@
+#define CurrencyConverter_VERSION_MINOR @CurrencyConverter_VERSION_MINOR@

@@ -1,0 +1,1 @@
+add_library(Fetcher Fetcher.cpp FetcherConfig.cpp)

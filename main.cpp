@@ -1,8 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "fetcher.h"
-
+#include "Fetcher/Fetcher.h"
+#include "CurrencyConverter.h"
 
 FetcherConfigMap ParseConfig(std::ifstream& Stream)
 {

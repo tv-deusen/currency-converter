@@ -1,6 +1,6 @@
 #include <string>
 #include <ostream>
-#include "fetcher_config.h"
+#include "FetcherConfig.h"
 
 // TODO: better parsing of bad characters that CURL won't like
 
