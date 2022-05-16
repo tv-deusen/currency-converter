@@ -4,19 +4,21 @@ project(CurrencyConverter VERSION 0.1)
 
 configure_file(CurrencyConverter.h.in CurrencyConverter.h)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_AUTOMOC ON)
 
-find_package(CURL REQUIRED)
-include_directories(${CURL_INCLUDE_DIR})
+find_package(PkgConfig)
 
 add_subdirectory(Fetcher)
+add_subdirectory(UI)
 
 add_executable(CurrencyConverter main.cpp)
+target_link_libraries(CurrencyConverter PRIVATE UI)
 
-target_link_libraries(CurrencyConverter PUBLIC Fetcher ${CURL_LIBRARIES})
-
-target_include_directories(CurrencyConverter PUBLIC
+target_include_directories(CurrencyConverter PRIVATE
                            "${PROJECT_BINARY_DIR}"
                            "${PROJECT_SOURCE_DIR}/Fetcher"
+                           "${PROJECT_SOURCE_DIR}/UI"
                            )
+
+target_compile_options(CurrencyConverter PRIVATE -Werror)
+target_compile_features(CurrencyConverter PRIVATE cxx_std_11)

@@ -1,1 +1,5 @@
+find_package(CURL REQUIRED)
 add_library(Fetcher Fetcher.cpp FetcherConfig.cpp)
+target_include_directories(Fetcher PRIVATE ${CURL_INCLUDE_DIR})
+target_compile_options(Fetcher PRIVATE ${CURL_CFLAGS_OTHER})
+target_link_libraries(Fetcher PUBLIC ${CURL_LIBRARIES})

@@ -1,8 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "Fetcher/Fetcher.h"
 #include "CurrencyConverter.h"
+#include "UI/App.h"
 
 FetcherConfigMap ParseConfig(std::ifstream& Stream)
 {
@@ -37,4 +37,5 @@ int main(int argc, char * argv[])
     auto Config = ParseConfig(Stream);
     curl_global_init(CURL_GLOBAL_ALL);
     auto CurrencyFetcher = Fetcher(Config);
+    return RunApp(1, argv, "currency.converter.app", CurrencyFetcher);
 }
