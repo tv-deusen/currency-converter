@@ -8,31 +8,12 @@ using json = nlohmann::json;
 
 Fetcher::Fetcher(FetcherConfigMap ConfigMap)
 {
-    Config = FetcherConfig(ConfigMap);
-    // std::cout << Config.Url() << std::endl << Config.Key() << std::endl;
-    // TODO: Should probably move this out of constructor?
-    //       Not sure what the best practice is for calling functions
-    //       like this in constructors.
-    GetCurrencySymbols();
+    Config = FetcherConfig(ConfigMap);    
 }
 
-std::string ApiKeyHeader(std::string Key)
-{
-    std::stringstream Buf;
-    Buf << "@{\'access_key\'=\'";
-    Buf << Key;
-    Buf << "\'}";
-
-    return Buf.str();
-}
-
-bool Fetcher::ParseCurrencySymbols(std::string& Buffer)
+std::map<std::string, std::string>& Fetcher::ParseCurrencySymbols(std::string& Buffer)
 {
     auto SymbolsJson = json::parse(Buffer).at("symbols");
-    if (SymbolsJson.empty())
-    {
-        return false;
-    }
 
     for (auto& Element : SymbolsJson.items())
     {
@@ -40,10 +21,10 @@ bool Fetcher::ParseCurrencySymbols(std::string& Buffer)
         auto Description = Element.value()["description"].get<std::string>();
         SymbolMap[Code] = Description;
     }
-    return true;
+    return SymbolMap;
 }
 
-void Fetcher::GetCurrencySymbols()
+std::map<std::string, std::string>& Fetcher::GetCurrencySymbols()
 {
     auto SymbolsEndpoint = Config.Url() + Symbols;
     std::string ReadBuffer;
@@ -57,7 +38,27 @@ void Fetcher::GetCurrencySymbols()
         curl_easy_perform(Curl);
         curl_easy_cleanup(Curl);
     }
-    ParseCurrencySymbols(ReadBuffer);
+    return ParseCurrencySymbols(ReadBuffer);
+}
+
+uint Fetcher::GetExchangeRate(const std::string& Base,
+                                      const std::string& Target,
+                                      const std::string& BaseAmount)
+{
+    auto RateEndpoint = std::string{Config.Url() + Convert + "?" + "from=" + Base + "&to=" + Target + "&amount=" + BaseAmount};
+    std::string ReadBuffer;
+    CURL *Curl = curl_easy_init();
+    if (Curl != nullptr)
+    {
+        curl_easy_setopt(Curl, CURLOPT_URL, RateEndpoint.c_str());
+        curl_easy_setopt(Curl, CURLOPT_WRITEFUNCTION, Fetcher::WriteCallback);
+        curl_easy_setopt(Curl, CURLOPT_WRITEDATA, &ReadBuffer);
+        curl_easy_perform(Curl);
+        curl_easy_cleanup(Curl);
+    }
+
+    auto Result = json::parse(ReadBuffer);
+    return Result["result"].get<uint>();
 }
 
 size_t Fetcher::WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)

@@ -7,7 +7,7 @@ int RunApp(int argc, char * argv[], std::string AppId, const Fetcher& Fetcher)
 {
     Glib::RefPtr<Gtk::Application> App = Gtk::Application::create(argc, argv, AppId);
 
-    CurrencyConverterWindow Window {};
+    CurrencyConverterWindow Window = CurrencyConverterWindow(Fetcher);
 
     return App->run(Window);
 }

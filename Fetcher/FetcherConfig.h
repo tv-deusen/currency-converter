@@ -1,3 +1,6 @@
+#ifndef F_FETCHERCONFIG_H
+#define F_FETCHERCONFIG_H
+
 #include <map>
 
 typedef std::map<std::string, std::string> FetcherConfigMap;
@@ -14,3 +17,5 @@ private:
     std::string ApiUrl;
     std::string ApiKey;
 };
+
+#endif
